@@ -4,9 +4,9 @@
 // Load .png image from file.
 // Takes path to file including filename as argument.
 // A pointer to the loaded image is then returned, or a nullptr if the image could not be loaded.
-ImageResizer::Image *ImageResizer::readImageFromFile(const char *filename)
+Resizer::Image *Resizer::readImageFromFile(const char *filename)
 {
-	ImageResizer::Image *image = new ImageResizer::Image();
+	Resizer::Image *image = new Resizer::Image();
 	unsigned error = lodepng_decode32_file(&image->data, &image->width, &image->height, filename);
 	if (error)
 	{
@@ -19,7 +19,7 @@ ImageResizer::Image *ImageResizer::readImageFromFile(const char *filename)
 
 // Save .png image to file.
 // Takes path to file including filename and a pointer to a image as arguments.
-void ImageResizer::saveImageToFile(const char *filename, const ImageResizer::Image *image)
+void Resizer::saveImageToFile(const char *filename, const Resizer::Image *image)
 {
 	unsigned error = lodepng_encode32_file(filename, image->data, image->width, image->height);
 	if (error)
@@ -33,59 +33,59 @@ void ImageResizer::saveImageToFile(const char *filename, const ImageResizer::Ima
 // Checks to see if a choosen image size is valid to resize to.
 // Takes image width and height in pixels as arguments.
 // If the image size is valid it returns true.
-bool ImageResizer::isValidSize(const int width, const int height)
+bool Resizer::isValidSize(const int width, const int height)
 {
-	return (width >= MIN_VALID_WIDTH && height >= MIN_VALID_HEIGHT && width <= MAX_VALID_WIDTH && height <= MAX_VALID_HEIGHT) ? true : false;
+	return (width >= Resizer::MIN_VALID_WIDTH && height >= Resizer::MIN_VALID_HEIGHT && width <= Resizer::MAX_VALID_WIDTH && height <= Resizer::MAX_VALID_HEIGHT) ? true : false;
 }
 
 // Not implemented yet.
-ImageResizer::Image *ImageResizer::bicubicInterpolation(const ImageResizer::Image *image, const float widthScale, const float heightScale)
+Resizer::Image *Resizer::bicubicInterpolation(const Resizer::Image *image, const float widthScale, const float heightScale)
 {
-	return ImageResizer::bicubicInterpolation(image, (int)(image->width * widthScale), (int)(image->height * heightScale));
+	return Resizer::bicubicInterpolation(image, (int)(image->width * widthScale), (int)(image->height * heightScale));
 }
 
 // Not implemented yet.
-ImageResizer::Image *ImageResizer::bicubicInterpolation(const ImageResizer::Image *image, const int width, const int height)
+Resizer::Image *Resizer::bicubicInterpolation(const Resizer::Image *image, const int width, const int height)
 {
-	if (!ImageResizer::isValidSize(width, height)) return nullptr;
+	if (!Resizer::isValidSize(width, height)) return nullptr;
 	return nullptr;
 }
 
 // Creates a resized copy of a image using bilinear interpolation.
 // Takes a original image and how much to scale the width and height in percentage.
 // It then returns a pointer to the resized image or nullptr if something went wrong.
-ImageResizer::Image *ImageResizer::bilinearInterpolation(const ImageResizer::Image *image, const float widthScale, const float heightScale)
+Resizer::Image *Resizer::bilinearInterpolation(const Resizer::Image *image, const float widthScale, const float heightScale)
 {
-	return ImageResizer::bilinearInterpolation(image, (int)(image->width * widthScale), (int)(image->height * heightScale));
+	return Resizer::bilinearInterpolation(image, (int)(image->width * widthScale), (int)(image->height * heightScale));
 }
 
 // Creates a resized copy of a image using bilinear interpolation.
 // Takes a original image and the wanted pixel size of the resized image.
 // It then returns a pointer to the resized image or nullptr if something went wrong.
-ImageResizer::Image *ImageResizer::bilinearInterpolation(const ImageResizer::Image *image, const int width, const int height)
+Resizer::Image *Resizer::bilinearInterpolation(const Resizer::Image *image, const int width, const int height)
 {
-	if (!ImageResizer::isValidSize(width, height)) return nullptr;
+	if (!Resizer::isValidSize(width, height)) return nullptr;
 
-	ImageResizer::Image *scaledImage = new ImageResizer::Image(width, height);
+	Resizer::Image *scaledImage = new Resizer::Image(width, height);
 	for (int i = 0; i < height; ++i)
 	{
 		for (int j = 0; j < width; ++j)
 		{
 			// scaled image pixel id
-			int id1 = (i * width + j) * NUMBER_OF_CHANNELS;
+			int id1 = (i * width + j) * Resizer::NUMBER_OF_CHANNELS;
 
 			// sample position in original image
 			float y = (i / (float)height) * image->height;
 			float x = (j / (float)width) * image->width;
 
 			// y sample pixels in the original image
-			int pixel1 = ((int)(y + 0) * image->width + (int)x + 0) * NUMBER_OF_CHANNELS;
-			int pixel2 = ((int)(y + 0) * image->width + (int)x + 1) * NUMBER_OF_CHANNELS;
-			int pixel3 = ((int)(y + 1) * image->width + (int)x + 0) * NUMBER_OF_CHANNELS;
-			int pixel4 = ((int)(y + 1) * image->width + (int)x + 1) * NUMBER_OF_CHANNELS;
+			int pixel1 = ((int)(y + 0) * image->width + (int)x + 0) * Resizer::NUMBER_OF_CHANNELS;
+			int pixel2 = ((int)(y + 0) * image->width + (int)x + 1) * Resizer::NUMBER_OF_CHANNELS;
+			int pixel3 = ((int)(y + 1) * image->width + (int)x + 0) * Resizer::NUMBER_OF_CHANNELS;
+			int pixel4 = ((int)(y + 1) * image->width + (int)x + 1) * Resizer::NUMBER_OF_CHANNELS;
 
 			// make sure no pixel id is bigger than number of pixels in image
-			int max = image->width * image->height * NUMBER_OF_CHANNELS;
+			int max = image->width * image->height * Resizer::NUMBER_OF_CHANNELS;
 			pixel1 = (pixel1 < max) ? pixel1 : max;
 			pixel2 = (pixel2 < max) ? pixel2 : max;
 			pixel3 = (pixel3 < max) ? pixel3 : max;
@@ -126,30 +126,30 @@ ImageResizer::Image *ImageResizer::bilinearInterpolation(const ImageResizer::Ima
 	return scaledImage;
 }
 
-// Creates a resized copy of a image using nearest beighbour interpolation.
+// Creates a resized copy of a image using nearest neighbour interpolation.
 // Takes a original image and how much to scale the width and height in percentage.
 // It then returns a pointer to the resized image or nullptr if something went wrong.
-ImageResizer::Image *ImageResizer::nearestNeighbourInterpolation(const ImageResizer::Image *image, const float widthScale, const float heightScale)
+Resizer::Image *Resizer::nearestNeighbourInterpolation(const Resizer::Image *image, const float widthScale, const float heightScale)
 {
-	return ImageResizer::nearestNeighbourInterpolation(image, (int)(image->width * widthScale), (int)(image->height * heightScale));
+	return Resizer::nearestNeighbourInterpolation(image, (int)(image->width * widthScale), (int)(image->height * heightScale));
 }
 
-// Creates a resized copy of a image using nearest beighbour interpolation.
+// Creates a resized copy of a image using nearest neighbour interpolation.
 // Takes a original image and the wanted pixel size of the resized image.
 // It then returns a pointer to the resized image or nullptr if something went wrong.
-ImageResizer::Image *ImageResizer::nearestNeighbourInterpolation(const ImageResizer::Image *image, const int width, const int height)
+Resizer::Image *Resizer::nearestNeighbourInterpolation(const Resizer::Image *image, const int width, const int height)
 {
-	if (!ImageResizer::isValidSize(width, height)) return nullptr;
+	if (!Resizer::isValidSize(width, height)) return nullptr;
 	int id1, id2, x, y;
-	ImageResizer::Image *scaledImage = new ImageResizer::Image(width, height);
+	Resizer::Image *scaledImage = new Resizer::Image(width, height);
 	for (int i = 0; i < height; ++i)
 	{
 		for (int j = 0; j < width; ++j)
 		{
 			y = (i / (float)height) * image->height;
 			x = (j / (float)width) * image->width;
-			id1 = (i * width + j) * NUMBER_OF_CHANNELS;
-			id2 = (y * image->width + x) * NUMBER_OF_CHANNELS;
+			id1 = (i * width + j) * Resizer::NUMBER_OF_CHANNELS;
+			id2 = (y * image->width + x) * Resizer::NUMBER_OF_CHANNELS;
 			scaledImage->data[id1 + 0] = image->data[id2 + 0];
 			scaledImage->data[id1 + 1] = image->data[id2 + 1];
 			scaledImage->data[id1 + 2] = image->data[id2 + 2];

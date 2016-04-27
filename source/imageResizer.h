@@ -2,7 +2,7 @@
 #include <iostream>
 #include <memory>
 
-namespace ImageResizer
+namespace Resizer
 {
 	// the number of channels in the images, in the case of RGBA it is set to 4
 	const unsigned NUMBER_OF_CHANNELS = 4;

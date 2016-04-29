@@ -1,4 +1,4 @@
-#include "imageResizer.h"
+#include "resizer.h"
 #include "lodepng.h"
 
 // Load .png image from file.

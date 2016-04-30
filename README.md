@@ -3,4 +3,4 @@ Small application that can be used to mass resize .png images. I made this small
 
 The application allows for selection of directory for original images, destination directory for resized images, adding of prefix/suffix to the filenames of the resized images, and more.
 
-![Example](linfredriksson.github.com//resizer/img/resizer_1.png)
+![Example](https://raw.githubusercontent.com/linfredriksson/resizer/master/img/resizer_1.png)
